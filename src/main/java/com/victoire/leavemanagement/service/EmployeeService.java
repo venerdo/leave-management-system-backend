@@ -34,6 +34,10 @@ public class EmployeeService {
         return employeeRepository.findByLastNameIgnoreCaseOrderByFirstNameAsc(lastName);
     }
 
+    public List<Employee> getEmployeesByManagerId(UUID managerId) {
+        return employeeRepository.findEmployeesByManagerId(managerId);
+    }
+
     public Optional<Employee> updateEmployee(UUID id, Employee employee) {
         Optional<Employee> existing = employeeRepository.findById(id);
         if (existing.isEmpty()) {

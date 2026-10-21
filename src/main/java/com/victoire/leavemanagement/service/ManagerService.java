@@ -29,6 +29,9 @@ public class ManagerService {
     public Optional<Manager> getManagerById(UUID id) {
         return managerRepository.findById(id);
     }
+    public List<Manager> getManagersByLeaveTypeName(String name) {
+        return managerRepository.findManagersByLeaveTypeName(name);
+    }
 
     public Optional<Manager> updateManager(UUID id, Manager manager) {
         Optional<Manager> existing = managerRepository.findById(id);

@@ -57,4 +57,9 @@ public class ManagerController {
         }
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
+
+    @GetMapping("/by-leave-type")
+    public ResponseEntity<List<Manager>> getByLeaveType(@RequestParam String name) {
+        return new ResponseEntity<>(managerService.getManagersByLeaveTypeName(name), HttpStatus.OK);
+    }
 }

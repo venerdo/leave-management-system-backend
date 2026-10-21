@@ -49,6 +49,11 @@ public class TeamController {
         return new ResponseEntity<>(updated.get(), HttpStatus.OK);
     }
 
+    @GetMapping("/free")
+    public ResponseEntity<List<Team>> getFreeTeams() {
+        return new ResponseEntity<>(teamService.getFreeTeams(), HttpStatus.OK);
+    }
+
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> delete(@PathVariable UUID id) {
         String message = teamService.deleteTeam(id);

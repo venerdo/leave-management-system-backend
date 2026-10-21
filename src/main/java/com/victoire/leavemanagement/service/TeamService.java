@@ -30,6 +30,10 @@ public class TeamService {
         return teamRepository.findById(id);
     }
 
+    public List<Team> getFreeTeams() {
+        return teamRepository.findFreeTeams();
+    }
+
     public Optional<Team> updateTeam(UUID id, Team team) {
         Optional<Team> existing = teamRepository.findById(id);
         if (existing.isEmpty()) {

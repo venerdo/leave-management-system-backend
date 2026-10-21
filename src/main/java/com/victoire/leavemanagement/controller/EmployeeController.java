@@ -2,6 +2,7 @@ package com.victoire.leavemanagement.controller;
 
 import com.victoire.leavemanagement.model.Employee;
 import com.victoire.leavemanagement.service.EmployeeService;
+import com.victoire.leavemanagement.service.ManagerService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,9 +16,11 @@ import java.util.UUID;
 public class EmployeeController {
 
     private final EmployeeService employeeService;
+    private final ManagerService managerService;
 
-    public EmployeeController(EmployeeService employeeService) {
+    public EmployeeController(EmployeeService employeeService, ManagerService managerService) {
         this.employeeService = employeeService;
+        this.managerService = managerService;
     }
 
     @PostMapping("/save")
@@ -52,6 +55,14 @@ public class EmployeeController {
             return new ResponseEntity<>("The employee with that id does not exist", HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(updated.get(), HttpStatus.OK);
+    }
+
+    @GetMapping("/of-manager/{managerId}")
+    public ResponseEntity<?> getOfManager(@PathVariable UUID managerId) {
+        if (managerService.getManagerById(managerId).isEmpty()) {
+            return new ResponseEntity<>("The manager with that id does not exist", HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(employeeService.getEmployeesByManagerId(managerId), HttpStatus.OK);
     }
 
     @DeleteMapping("/delete/{id}")

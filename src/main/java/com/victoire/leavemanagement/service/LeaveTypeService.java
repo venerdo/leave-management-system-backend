@@ -30,6 +30,10 @@ public class LeaveTypeService {
         return leaveTypeRepository.findById(id);
     }
 
+    public List<LeaveType> getUnusedLeaveTypes() {
+        return leaveTypeRepository.findUnusedLeaveTypes();
+    }
+
     public Optional<LeaveType> updateLeaveType(UUID id, LeaveType leaveType) {
         Optional<LeaveType> existing = leaveTypeRepository.findById(id);
         if (existing.isEmpty()) {

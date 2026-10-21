@@ -49,6 +49,11 @@ public class LeaveTypeController {
         return new ResponseEntity<>(updated.get(), HttpStatus.OK);
     }
 
+    @GetMapping("/unused")
+    public ResponseEntity<List<LeaveType>> getUnused() {
+        return new ResponseEntity<>(leaveTypeService.getUnusedLeaveTypes(), HttpStatus.OK);
+    }
+
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> delete(@PathVariable UUID id) {
         String message = leaveTypeService.deleteLeaveType(id);
