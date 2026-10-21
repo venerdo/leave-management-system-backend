@@ -40,17 +40,22 @@ public class LeaveRequestController {
 
     @GetMapping("/all")
     public ResponseEntity<List<LeaveRequest>> getAll() {
-        return new ResponseEntity<>(leaveRequestService.getAllLeaveRequests(), HttpStatus.OK);
+        return new ResponseEntity<>(
+                leaveRequestService.getAllLeaveRequests(),
+                HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getById(@PathVariable UUID id) {
-        Optional<LeaveRequest> lr = leaveRequestService.getLeaveRequestById(id);
+        Optional<LeaveRequest> lr =
+                leaveRequestService.getLeaveRequestById(id);
+
         if (lr.isEmpty()) {
             return new ResponseEntity<>(
                     "The leave request with that id does not exist",
                     HttpStatus.NOT_FOUND);
         }
+
         return new ResponseEntity<>(lr.get(), HttpStatus.OK);
     }
 
@@ -58,6 +63,7 @@ public class LeaveRequestController {
     public ResponseEntity<?> update(
             @PathVariable UUID id,
             @RequestBody LeaveRequest leaveRequest) {
+
         Optional<LeaveRequest> updated =
                 leaveRequestService.updateLeaveRequest(id, leaveRequest);
 
@@ -66,6 +72,7 @@ public class LeaveRequestController {
                     "The leave request with that id does not exist",
                     HttpStatus.NOT_FOUND);
         }
+
         return new ResponseEntity<>(updated.get(), HttpStatus.OK);
     }
 
@@ -89,6 +96,7 @@ public class LeaveRequestController {
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
 
+    // E3: Delete leave request with handover-note protection
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> delete(@PathVariable UUID id) {
         String message = leaveRequestService.deleteLeaveRequest(id);
@@ -97,28 +105,36 @@ public class LeaveRequestController {
             return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
         }
 
+        if (message.equals(
+                "That leave request has handover notes, delete them first")) {
+            return new ResponseEntity<>(message, HttpStatus.CONFLICT);
+        }
+
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
 
-    // B2
+    // B2: Get leave requests by status
     @GetMapping("/by-status")
     public ResponseEntity<List<LeaveRequest>> getByStatus(
             @RequestParam LeaveRequestStatus status) {
+
         return new ResponseEntity<>(
                 leaveRequestService.getLeaveRequestsByStatus(status),
                 HttpStatus.OK);
     }
 
-    // B3
+    // B3: Get leave requests between dates
     @GetMapping("/between")
     public ResponseEntity<List<LeaveRequest>> getBetween(
             @RequestParam String start,
             @RequestParam String end) {
+
         LocalDate startDate = LocalDate.parse(start);
         LocalDate endDate = LocalDate.parse(end);
 
         return new ResponseEntity<>(
-                leaveRequestService.getLeaveRequestsBetweenDates(startDate, endDate),
+                leaveRequestService.getLeaveRequestsBetweenDates(
+                        startDate, endDate),
                 HttpStatus.OK);
     }
 }

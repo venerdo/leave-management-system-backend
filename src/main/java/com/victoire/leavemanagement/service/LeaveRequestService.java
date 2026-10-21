@@ -3,6 +3,7 @@ package com.victoire.leavemanagement.service;
 
 import com.victoire.leavemanagement.model.LeaveRequest;
 import com.victoire.leavemanagement.model.LeaveRequestStatus;
+import com.victoire.leavemanagement.repository.HandoverNoteRepository;
 import com.victoire.leavemanagement.repository.LeaveRequestRepository;
 import org.springframework.stereotype.Service;
 
@@ -14,9 +15,13 @@ import java.util.UUID;
 public class LeaveRequestService {
 
     private final LeaveRequestRepository leaveRequestRepository;
+    private final HandoverNoteRepository handoverNoteRepository;
 
-    public LeaveRequestService(LeaveRequestRepository leaveRequestRepository) {
+    public LeaveRequestService(
+            LeaveRequestRepository leaveRequestRepository,
+            HandoverNoteRepository handoverNoteRepository) {
         this.leaveRequestRepository = leaveRequestRepository;
+        this.handoverNoteRepository = handoverNoteRepository;
     }
 
     public String saveLeaveRequest(LeaveRequest leaveRequest) {
@@ -66,7 +71,7 @@ public class LeaveRequestService {
         LeaveRequest lr = existing.get();
         LeaveRequestStatus current = lr.getStatus();
 
-        // Validate transitions
+        // Validate status transitions
         boolean valid = false;
 
         if (current == LeaveRequestStatus.SUBMITTED
@@ -89,7 +94,8 @@ public class LeaveRequestService {
         return "Leave request status updated successfully";
     }
 
-    public Optional<LeaveRequest> updateLeaveRequest(UUID id, LeaveRequest leaveRequest) {
+    public Optional<LeaveRequest> updateLeaveRequest(
+            UUID id, LeaveRequest leaveRequest) {
         Optional<LeaveRequest> existing = leaveRequestRepository.findById(id);
 
         if (existing.isEmpty()) {
@@ -109,9 +115,17 @@ public class LeaveRequestService {
         return Optional.of(lr);
     }
 
+    // E3: Prevent deletion when handover notes exist
     public String deleteLeaveRequest(UUID id) {
-        if (!leaveRequestRepository.existsById(id)) {
+        Optional<LeaveRequest> leaveRequestOpt =
+                leaveRequestRepository.findById(id);
+
+        if (leaveRequestOpt.isEmpty()) {
             return "The leave request with that id does not exist";
+        }
+
+        if (handoverNoteRepository.existsByLeaveRequest(leaveRequestOpt.get())) {
+            return "That leave request has handover notes, delete them first";
         }
 
         leaveRequestRepository.deleteById(id);
