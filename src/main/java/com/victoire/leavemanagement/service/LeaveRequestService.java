@@ -1,3 +1,4 @@
+
 package com.victoire.leavemanagement.service;
 
 import com.victoire.leavemanagement.model.LeaveRequest;
@@ -19,6 +20,20 @@ public class LeaveRequestService {
     }
 
     public String saveLeaveRequest(LeaveRequest leaveRequest) {
+        if (leaveRequest.getStartDate().isBefore(java.time.LocalDate.now())) {
+            return "Leave request date cannot be in the past";
+        }
+
+        if (leaveRequestRepository.existsByManagerAndStartDateAndStatusNot(
+                leaveRequest.getManager(),
+                leaveRequest.getStartDate(),
+                LeaveRequestStatus.REJECTED)) {
+            return "Manager already has a leave request starting on that date";
+        }
+
+        // Force status to SUBMITTED regardless of what JSON says
+        leaveRequest.setStatus(LeaveRequestStatus.SUBMITTED);
+
         leaveRequestRepository.save(leaveRequest);
         return "Leave request saved successfully";
     }
@@ -30,25 +45,66 @@ public class LeaveRequestService {
     public Optional<LeaveRequest> getLeaveRequestById(UUID id) {
         return leaveRequestRepository.findById(id);
     }
+
     public List<LeaveRequest> getLeaveRequestsByStatus(LeaveRequestStatus status) {
         return leaveRequestRepository.findByStatusOrderByStartDateAsc(status);
     }
-    public List<LeaveRequest> getLeaveRequestsBetweenDates(java.time.LocalDate start, java.time.LocalDate end) {
+
+    public List<LeaveRequest> getLeaveRequestsBetweenDates(
+            java.time.LocalDate start, java.time.LocalDate end) {
         return leaveRequestRepository.findByStartDateBetweenOrderByStartDateAsc(start, end);
+    }
+
+    // D2: Update status only when the transition is valid
+    public String updateLeaveRequestStatus(UUID id, LeaveRequestStatus newStatus) {
+        Optional<LeaveRequest> existing = leaveRequestRepository.findById(id);
+
+        if (existing.isEmpty()) {
+            return "The leave request with that id does not exist";
+        }
+
+        LeaveRequest lr = existing.get();
+        LeaveRequestStatus current = lr.getStatus();
+
+        // Validate transitions
+        boolean valid = false;
+
+        if (current == LeaveRequestStatus.SUBMITTED
+                && (newStatus == LeaveRequestStatus.IN_REVIEW
+                || newStatus == LeaveRequestStatus.REJECTED)) {
+            valid = true;
+        } else if (current == LeaveRequestStatus.IN_REVIEW
+                && (newStatus == LeaveRequestStatus.APPROVED
+                || newStatus == LeaveRequestStatus.REJECTED)) {
+            valid = true;
+        }
+
+        if (!valid) {
+            return "Cannot change status from " + current + " to " + newStatus;
+        }
+
+        lr.setStatus(newStatus);
+        leaveRequestRepository.save(lr);
+
+        return "Leave request status updated successfully";
     }
 
     public Optional<LeaveRequest> updateLeaveRequest(UUID id, LeaveRequest leaveRequest) {
         Optional<LeaveRequest> existing = leaveRequestRepository.findById(id);
+
         if (existing.isEmpty()) {
             return Optional.empty();
         }
+
         LeaveRequest lr = existing.get();
         lr.setStartDate(leaveRequest.getStartDate());
-        lr.setStatus(leaveRequest.getStatus());
+
+        // Do not update status through the general PUT endpoint
         lr.setDays(leaveRequest.getDays());
         lr.setReason(leaveRequest.getReason());
         lr.setEmployee(leaveRequest.getEmployee());
         lr.setManager(leaveRequest.getManager());
+
         leaveRequestRepository.save(lr);
         return Optional.of(lr);
     }
@@ -57,6 +113,7 @@ public class LeaveRequestService {
         if (!leaveRequestRepository.existsById(id)) {
             return "The leave request with that id does not exist";
         }
+
         leaveRequestRepository.deleteById(id);
         return "Leave request deleted successfully";
     }

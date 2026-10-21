@@ -12,4 +12,5 @@ import java.util.UUID;
 public interface LeaveRequestRepository extends JpaRepository<LeaveRequest, UUID> {
     List<LeaveRequest> findByStatusOrderByStartDateAsc(LeaveRequestStatus status);
     List<LeaveRequest> findByStartDateBetweenOrderByStartDateAsc(java.time.LocalDate start, java.time.LocalDate end);
+    boolean existsByManagerAndStartDateAndStatusNot(com.victoire.leavemanagement.model.Manager manager, java.time.LocalDate startDate, LeaveRequestStatus status);
 }

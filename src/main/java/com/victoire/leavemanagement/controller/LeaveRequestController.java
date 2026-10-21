@@ -1,3 +1,4 @@
+
 package com.victoire.leavemanagement.controller;
 
 import com.victoire.leavemanagement.model.LeaveRequest;
@@ -25,6 +26,15 @@ public class LeaveRequestController {
     @PostMapping("/save")
     public ResponseEntity<String> save(@RequestBody LeaveRequest leaveRequest) {
         String message = leaveRequestService.saveLeaveRequest(leaveRequest);
+
+        if (message.equals("Leave request date cannot be in the past")) {
+            return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
+        }
+
+        if (message.equals("Manager already has a leave request starting on that date")) {
+            return new ResponseEntity<>(message, HttpStatus.CONFLICT);
+        }
+
         return new ResponseEntity<>(message, HttpStatus.CREATED);
     }
 
@@ -37,33 +47,66 @@ public class LeaveRequestController {
     public ResponseEntity<?> getById(@PathVariable UUID id) {
         Optional<LeaveRequest> lr = leaveRequestService.getLeaveRequestById(id);
         if (lr.isEmpty()) {
-            return new ResponseEntity<>("The leave request with that id does not exist", HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(
+                    "The leave request with that id does not exist",
+                    HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(lr.get(), HttpStatus.OK);
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<?> update(@PathVariable UUID id, @RequestBody LeaveRequest leaveRequest) {
-        Optional<LeaveRequest> updated = leaveRequestService.updateLeaveRequest(id, leaveRequest);
+    public ResponseEntity<?> update(
+            @PathVariable UUID id,
+            @RequestBody LeaveRequest leaveRequest) {
+        Optional<LeaveRequest> updated =
+                leaveRequestService.updateLeaveRequest(id, leaveRequest);
+
         if (updated.isEmpty()) {
-            return new ResponseEntity<>("The leave request with that id does not exist", HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(
+                    "The leave request with that id does not exist",
+                    HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(updated.get(), HttpStatus.OK);
+    }
+
+    // D2: Update leave request status with transition validation
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<String> updateStatus(
+            @PathVariable UUID id,
+            @RequestParam LeaveRequestStatus status) {
+
+        String message =
+                leaveRequestService.updateLeaveRequestStatus(id, status);
+
+        if (message.equals("The leave request with that id does not exist")) {
+            return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
+        }
+
+        if (message.startsWith("Cannot change status")) {
+            return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity<>(message, HttpStatus.OK);
     }
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> delete(@PathVariable UUID id) {
         String message = leaveRequestService.deleteLeaveRequest(id);
+
         if (message.equals("The leave request with that id does not exist")) {
             return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
         }
+
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
 
     // B2
     @GetMapping("/by-status")
-    public ResponseEntity<List<LeaveRequest>> getByStatus(@RequestParam LeaveRequestStatus status) {
-        return new ResponseEntity<>(leaveRequestService.getLeaveRequestsByStatus(status), HttpStatus.OK);
+    public ResponseEntity<List<LeaveRequest>> getByStatus(
+            @RequestParam LeaveRequestStatus status) {
+        return new ResponseEntity<>(
+                leaveRequestService.getLeaveRequestsByStatus(status),
+                HttpStatus.OK);
     }
 
     // B3
@@ -73,6 +116,9 @@ public class LeaveRequestController {
             @RequestParam String end) {
         LocalDate startDate = LocalDate.parse(start);
         LocalDate endDate = LocalDate.parse(end);
-        return new ResponseEntity<>(leaveRequestService.getLeaveRequestsBetweenDates(startDate, endDate), HttpStatus.OK);
+
+        return new ResponseEntity<>(
+                leaveRequestService.getLeaveRequestsBetweenDates(startDate, endDate),
+                HttpStatus.OK);
     }
 }
