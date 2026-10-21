@@ -40,6 +40,11 @@ public class EmployeeController {
         return new ResponseEntity<>(emp.get(), HttpStatus.OK);
     }
 
+    @GetMapping("/by-last-name")
+    public ResponseEntity<List<Employee>> getByLastName(@RequestParam String lastName) {
+        return new ResponseEntity<>(employeeService.getEmployeesByLastName(lastName), HttpStatus.OK);
+    }
+
     @PutMapping("/update/{id}")
     public ResponseEntity<?> update(@PathVariable UUID id, @RequestBody Employee employee) {
         Optional<Employee> updated = employeeService.updateEmployee(id, employee);

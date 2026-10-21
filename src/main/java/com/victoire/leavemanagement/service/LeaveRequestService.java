@@ -1,6 +1,7 @@
 package com.victoire.leavemanagement.service;
 
 import com.victoire.leavemanagement.model.LeaveRequest;
+import com.victoire.leavemanagement.model.LeaveRequestStatus;
 import com.victoire.leavemanagement.repository.LeaveRequestRepository;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +29,12 @@ public class LeaveRequestService {
 
     public Optional<LeaveRequest> getLeaveRequestById(UUID id) {
         return leaveRequestRepository.findById(id);
+    }
+    public List<LeaveRequest> getLeaveRequestsByStatus(LeaveRequestStatus status) {
+        return leaveRequestRepository.findByStatusOrderByStartDateAsc(status);
+    }
+    public List<LeaveRequest> getLeaveRequestsBetweenDates(java.time.LocalDate start, java.time.LocalDate end) {
+        return leaveRequestRepository.findByStartDateBetweenOrderByStartDateAsc(start, end);
     }
 
     public Optional<LeaveRequest> updateLeaveRequest(UUID id, LeaveRequest leaveRequest) {

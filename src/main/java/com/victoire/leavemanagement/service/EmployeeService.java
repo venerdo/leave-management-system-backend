@@ -30,6 +30,10 @@ public class EmployeeService {
         return employeeRepository.findById(id);
     }
 
+    public List<Employee> getEmployeesByLastName(String lastName) {
+        return employeeRepository.findByLastNameIgnoreCaseOrderByFirstNameAsc(lastName);
+    }
+
     public Optional<Employee> updateEmployee(UUID id, Employee employee) {
         Optional<Employee> existing = employeeRepository.findById(id);
         if (existing.isEmpty()) {

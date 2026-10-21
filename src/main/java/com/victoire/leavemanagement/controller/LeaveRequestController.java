@@ -1,11 +1,13 @@
 package com.victoire.leavemanagement.controller;
 
 import com.victoire.leavemanagement.model.LeaveRequest;
+import com.victoire.leavemanagement.model.LeaveRequestStatus;
 import com.victoire.leavemanagement.service.LeaveRequestService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -56,5 +58,21 @@ public class LeaveRequestController {
             return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(message, HttpStatus.OK);
+    }
+
+    // B2
+    @GetMapping("/by-status")
+    public ResponseEntity<List<LeaveRequest>> getByStatus(@RequestParam LeaveRequestStatus status) {
+        return new ResponseEntity<>(leaveRequestService.getLeaveRequestsByStatus(status), HttpStatus.OK);
+    }
+
+    // B3
+    @GetMapping("/between")
+    public ResponseEntity<List<LeaveRequest>> getBetween(
+            @RequestParam String start,
+            @RequestParam String end) {
+        LocalDate startDate = LocalDate.parse(start);
+        LocalDate endDate = LocalDate.parse(end);
+        return new ResponseEntity<>(leaveRequestService.getLeaveRequestsBetweenDates(startDate, endDate), HttpStatus.OK);
     }
 }
