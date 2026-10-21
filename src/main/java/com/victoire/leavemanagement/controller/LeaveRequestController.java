@@ -1,0 +1,60 @@
+package com.victoire.leavemanagement.controller;
+
+import com.victoire.leavemanagement.model.LeaveRequest;
+import com.victoire.leavemanagement.service.LeaveRequestService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+@RestController
+@RequestMapping("/api/leave-requests")
+public class LeaveRequestController {
+
+    private final LeaveRequestService leaveRequestService;
+
+    public LeaveRequestController(LeaveRequestService leaveRequestService) {
+        this.leaveRequestService = leaveRequestService;
+    }
+
+    @PostMapping("/save")
+    public ResponseEntity<String> save(@RequestBody LeaveRequest leaveRequest) {
+        String message = leaveRequestService.saveLeaveRequest(leaveRequest);
+        return new ResponseEntity<>(message, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<LeaveRequest>> getAll() {
+        return new ResponseEntity<>(leaveRequestService.getAllLeaveRequests(), HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getById(@PathVariable UUID id) {
+        Optional<LeaveRequest> lr = leaveRequestService.getLeaveRequestById(id);
+        if (lr.isEmpty()) {
+            return new ResponseEntity<>("The leave request with that id does not exist", HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(lr.get(), HttpStatus.OK);
+    }
+
+    @PutMapping("/update/{id}")
+    public ResponseEntity<?> update(@PathVariable UUID id, @RequestBody LeaveRequest leaveRequest) {
+        Optional<LeaveRequest> updated = leaveRequestService.updateLeaveRequest(id, leaveRequest);
+        if (updated.isEmpty()) {
+            return new ResponseEntity<>("The leave request with that id does not exist", HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(updated.get(), HttpStatus.OK);
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<String> delete(@PathVariable UUID id) {
+        String message = leaveRequestService.deleteLeaveRequest(id);
+        if (message.equals("The leave request with that id does not exist")) {
+            return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(message, HttpStatus.OK);
+    }
+}
