@@ -1,0 +1,401 @@
+{
+	"info": {
+		"_postman_id": "d6b4d93b-c124-40b2-b1b2-77d5134330e0",
+		"name": "leave-management-system-midterm",
+		"description": "Mid-term project exam for Leave Management System. Student: Ushindi Bihame Victoire (27269).",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Step 0: Seed Data",
+			"item": [
+				{
+					"name": "POST Save Team",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"teamNumber\": 1,\n    \"name\": \"Engineering\"\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": {
+							"raw": "{{lms}}/api/teams/save",
+							"host": ["{{lms}}"],
+							"path": ["api", "teams", "save"]
+						}
+					}
+				},
+				{
+					"name": "POST Save LeaveType",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Annual Leave\"\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": {
+							"raw": "{{lms}}/api/leave-types/save",
+							"host": ["{{lms}}"],
+							"path": ["api", "leave-types", "save"]
+						}
+					}
+				},
+				{
+					"name": "POST Save Employee",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstName\": \"Alice\",\n    \"lastName\": \"Uwimana\",\n    \"staffNumber\": \"EMP-0042\",\n    \"email\": \"alice@company.com\",\n    \"jobTitle\": \"Developer\"\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": {
+							"raw": "{{lms}}/api/employees/save",
+							"host": ["{{lms}}"],
+							"path": ["api", "employees", "save"]
+						}
+					}
+				},
+				{
+					"name": "POST Save Manager",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\",\n    \"email\": \"john@company.com\",\n    \"team\": {\n        \"id\": \"PASTE_TEAM_ID_HERE\"\n    }\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": {
+							"raw": "{{lms}}/api/managers/save",
+							"host": ["{{lms}}"],
+							"path": ["api", "managers", "save"]
+						}
+					}
+				},
+				{
+					"name": "POST Save LeaveRequest",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"startDate\": \"2026-10-15\",\n    \"days\": 3,\n    \"reason\": \"Family trip\",\n    \"status\": \"APPROVED\",\n    \"employee\": {\n        \"id\": \"PASTE_EMPLOYEE_ID_HERE\"\n    },\n    \"manager\": {\n        \"id\": \"PASTE_MANAGER_ID_HERE\"\n    }\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": {
+							"raw": "{{lms}}/api/leave-requests/save",
+							"host": ["{{lms}}"],
+							"path": ["api", "leave-requests", "save"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Part B: Derived Queries",
+			"item": [
+				{
+					"name": "B1 - Get Employees by Last Name",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{lms}}/api/employees/by-last-name?lastName=uwimana",
+							"host": ["{{lms}}"],
+							"path": ["api", "employees", "by-last-name"],
+							"query": [
+								{ "key": "lastName", "value": "uwimana" }
+							]
+						}
+					}
+				},
+				{
+					"name": "B2 - Get Leave Requests by Status",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{lms}}/api/leave-requests/by-status?status=SUBMITTED",
+							"host": ["{{lms}}"],
+							"path": ["api", "leave-requests", "by-status"],
+							"query": [
+								{ "key": "status", "value": "SUBMITTED" }
+							]
+						}
+					}
+				},
+				{
+					"name": "B3 - Get Leave Requests between Dates",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{lms}}/api/leave-requests/between?start=2026-10-01&end=2026-10-31",
+							"host": ["{{lms}}"],
+							"path": ["api", "leave-requests", "between"],
+							"query": [
+								{ "key": "start", "value": "2026-10-01" },
+								{ "key": "end", "value": "2026-10-31" }
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Part C: JPQL Queries",
+			"item": [
+				{
+					"name": "C1 - Managers by Leave Type",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{lms}}/api/managers/by-leave-type?name=annual",
+							"host": ["{{lms}}"],
+							"path": ["api", "managers", "by-leave-type"],
+							"query": [
+								{ "key": "name", "value": "annual" }
+							]
+						}
+					}
+				},
+				{
+					"name": "C2 - Free Teams",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{lms}}/api/teams/free",
+							"host": ["{{lms}}"],
+							"path": ["api", "teams", "free"]
+						}
+					}
+				},
+				{
+					"name": "C3 - Unused Leave Types",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{lms}}/api/leave-types/unused",
+							"host": ["{{lms}}"],
+							"path": ["api", "leave-types", "unused"]
+						}
+					}
+				},
+				{
+					"name": "C4 - Employees of Manager (Success)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{lms}}/api/employees/of-manager/PASTE_MANAGER_ID_HERE",
+							"host": ["{{lms}}"],
+							"path": ["api", "employees", "of-manager", "PASTE_MANAGER_ID_HERE"]
+						}
+					}
+				},
+				{
+					"name": "C4 - Employees of Manager (Fail 404)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{lms}}/api/employees/of-manager/00000000-0000-0000-0000-000000000000",
+							"host": ["{{lms}}"],
+							"path": ["api", "employees", "of-manager", "00000000-0000-0000-0000-000000000000"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Part D: Business Rules",
+			"item": [
+				{
+					"name": "D1 - Safe Save (Fail 400 Past Date)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"startDate\": \"2020-01-01\",\n    \"days\": 2,\n    \"reason\": \"Test\",\n    \"employee\": { \"id\": \"PASTE_EMPLOYEE_ID_HERE\" },\n    \"manager\": { \"id\": \"PASTE_MANAGER_ID_HERE\" }\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": {
+							"raw": "{{lms}}/api/leave-requests/save",
+							"host": ["{{lms}}"],
+							"path": ["api", "leave-requests", "save"]
+						}
+					}
+				},
+				{
+					"name": "D2 - Status Flow (Fail 400)",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{lms}}/api/leave-requests/PASTE_APPROVED_REQUEST_ID/status?status=SUBMITTED",
+							"host": ["{{lms}}"],
+							"path": ["api", "leave-requests", "PASTE_APPROVED_REQUEST_ID", "status"],
+							"query": [
+								{ "key": "status", "value": "SUBMITTED" }
+							]
+						}
+					}
+				},
+				{
+					"name": "D3 - Add Leave Type to Manager",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{lms}}/api/managers/PASTE_MANAGER_ID_HERE/leave-types/PASTE_LEAVETYPE_ID_HERE",
+							"host": ["{{lms}}"],
+							"path": ["api", "managers", "PASTE_MANAGER_ID_HERE", "leave-types", "PASTE_LEAVETYPE_ID_HERE"]
+						}
+					}
+				},
+				{
+					"name": "D4 - Move Manager to Team (Fail 409)",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{lms}}/api/managers/PASTE_MANAGER_ID_HERE/team?teamNumber=1",
+							"host": ["{{lms}}"],
+							"path": ["api", "managers", "PASTE_MANAGER_ID_HERE", "team"],
+							"query": [
+								{ "key": "teamNumber", "value": "1" }
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Part E: Handover Notes",
+			"item": [
+				{
+					"name": "E1 - Save Handover Note (Fail 400 Not Approved)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"taskName\": \"Weekly payroll run\",\n    \"instructions\": \"Run every Friday before noon\",\n    \"estimatedHours\": 3\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": {
+							"raw": "{{lms}}/api/handover-notes/save?leaveRequestId=PASTE_SUBMITTED_REQUEST_ID",
+							"host": ["{{lms}}"],
+							"path": ["api", "handover-notes", "save"],
+							"query": [
+								{ "key": "leaveRequestId", "value": "PASTE_SUBMITTED_REQUEST_ID" }
+							]
+						}
+					}
+				},
+				{
+					"name": "E2 - Get Handover Notes by Employee",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{lms}}/api/handover-notes/employee/EMP-0042",
+							"host": ["{{lms}}"],
+							"path": ["api", "handover-notes", "employee", "EMP-0042"]
+						}
+					}
+				},
+				{
+					"name": "E3 - Delete Leave Request (Fail 409 Has Notes)",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{lms}}/api/leave-requests/delete/PASTE_APPROVED_REQUEST_ID",
+							"host": ["{{lms}}"],
+							"path": ["api", "leave-requests", "delete", "PASTE_APPROVED_REQUEST_ID"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Part F: Reports & Bonus",
+			"item": [
+				{
+					"name": "F1 - Leave Request Stats by Status",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{lms}}/api/leave-requests/stats/by-status",
+							"host": ["{{lms}}"],
+							"path": ["api", "leave-requests", "stats", "by-status"]
+						}
+					}
+				},
+				{
+					"name": "F2 - Cancel Day Bulk Update",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{lms}}/api/leave-requests/cancel-day?managerId=PASTE_MANAGER_ID_HERE&date=2026-10-20",
+							"host": ["{{lms}}"],
+							"path": ["api", "leave-requests", "cancel-day"],
+							"query": [
+								{ "key": "managerId", "value": "PASTE_MANAGER_ID_HERE" },
+								{ "key": "date", "value": "2026-10-20" }
+							]
+						}
+					}
+				},
+				{
+					"name": "Bonus 1 - Dashboard Summary",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{lms}}/api/dashboard/summary",
+							"host": ["{{lms}}"],
+							"path": ["api", "dashboard", "summary"]
+						}
+					}
+				},
+				{
+					"name": "Bonus 2 - Pagination",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{lms}}/api/leave-requests/page?page=0&size=5&sort=startDate,desc",
+							"host": ["{{lms}}"],
+							"path": ["api", "leave-requests", "page"],
+							"query": [
+								{ "key": "page", "value": "0" },
+								{ "key": "size", "value": "5" },
+								{ "key": "sort", "value": "startDate,desc" }
+							]
+						}
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "lms",
+			"value": "http://localhost:8080",
+			"type": "string"
+		}
+	]
+}
