@@ -1,10 +1,11 @@
-
 package com.victoire.leavemanagement.service;
 
 import com.victoire.leavemanagement.model.LeaveRequest;
 import com.victoire.leavemanagement.model.LeaveRequestStatus;
 import com.victoire.leavemanagement.repository.HandoverNoteRepository;
 import com.victoire.leavemanagement.repository.LeaveRequestRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,7 +27,8 @@ public class LeaveRequestService {
     }
 
     public String saveLeaveRequest(LeaveRequest leaveRequest) {
-        if (leaveRequest.getStartDate().isBefore(java.time.LocalDate.now())) {
+        if (leaveRequest.getStartDate()
+                .isBefore(java.time.LocalDate.now())) {
             return "Leave request date cannot be in the past";
         }
 
@@ -54,13 +56,21 @@ public class LeaveRequestService {
 
     public List<LeaveRequest> getLeaveRequestsByStatus(
             LeaveRequestStatus status) {
-        return leaveRequestRepository.findByStatusOrderByStartDateAsc(status);
+        return leaveRequestRepository
+                .findByStatusOrderByStartDateAsc(status);
     }
 
     public List<LeaveRequest> getLeaveRequestsBetweenDates(
-            java.time.LocalDate start, java.time.LocalDate end) {
+            java.time.LocalDate start,
+            java.time.LocalDate end) {
         return leaveRequestRepository
                 .findByStartDateBetweenOrderByStartDateAsc(start, end);
+    }
+
+    // Bonus 2: Get paginated leave requests
+    public Page<LeaveRequest> getLeaveRequestsPage(
+            Pageable pageable) {
+        return leaveRequestRepository.findAll(pageable);
     }
 
     // F1: Get leave request counts grouped by status
@@ -71,18 +81,22 @@ public class LeaveRequestService {
     // F2: Bulk cancel leave requests for an absent manager
     @Transactional
     public String cancelLeaveRequestsForManager(
-            UUID managerId, java.time.LocalDate date) {
+            UUID managerId,
+            java.time.LocalDate date) {
 
         int updatedCount =
-                leaveRequestRepository.cancelLeaveRequestsForManagerOnDate(
-                        managerId, date);
+                leaveRequestRepository
+                        .cancelLeaveRequestsForManagerOnDate(
+                                managerId, date);
 
         return updatedCount + " leave requests cancelled";
     }
 
     // D2: Update status only when the transition is valid
     public String updateLeaveRequestStatus(
-            UUID id, LeaveRequestStatus newStatus) {
+            UUID id,
+            LeaveRequestStatus newStatus) {
+
         Optional<LeaveRequest> existing =
                 leaveRequestRepository.findById(id);
 
@@ -107,7 +121,8 @@ public class LeaveRequestService {
         }
 
         if (!valid) {
-            return "Cannot change status from " + current + " to " + newStatus;
+            return "Cannot change status from "
+                    + current + " to " + newStatus;
         }
 
         lr.setStatus(newStatus);
@@ -117,7 +132,9 @@ public class LeaveRequestService {
     }
 
     public Optional<LeaveRequest> updateLeaveRequest(
-            UUID id, LeaveRequest leaveRequest) {
+            UUID id,
+            LeaveRequest leaveRequest) {
+
         Optional<LeaveRequest> existing =
                 leaveRequestRepository.findById(id);
 
@@ -127,8 +144,6 @@ public class LeaveRequestService {
 
         LeaveRequest lr = existing.get();
         lr.setStartDate(leaveRequest.getStartDate());
-
-
         lr.setDays(leaveRequest.getDays());
         lr.setReason(leaveRequest.getReason());
         lr.setEmployee(leaveRequest.getEmployee());

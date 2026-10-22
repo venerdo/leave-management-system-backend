@@ -1,9 +1,12 @@
-
 package com.victoire.leavemanagement.controller;
 
 import com.victoire.leavemanagement.model.LeaveRequest;
 import com.victoire.leavemanagement.model.LeaveRequestStatus;
 import com.victoire.leavemanagement.service.LeaveRequestService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,18 +29,24 @@ public class LeaveRequestController {
     @PostMapping("/save")
     public ResponseEntity<String> save(
             @RequestBody LeaveRequest leaveRequest) {
-        String message = leaveRequestService.saveLeaveRequest(leaveRequest);
 
-        if (message.equals("Leave request date cannot be in the past")) {
-            return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
+        String message =
+                leaveRequestService.saveLeaveRequest(leaveRequest);
+
+        if (message.equals(
+                "Leave request date cannot be in the past")) {
+            return new ResponseEntity<>(
+                    message, HttpStatus.BAD_REQUEST);
         }
 
         if (message.equals(
                 "Manager already has a leave request starting on that date")) {
-            return new ResponseEntity<>(message, HttpStatus.CONFLICT);
+            return new ResponseEntity<>(
+                    message, HttpStatus.CONFLICT);
         }
 
-        return new ResponseEntity<>(message, HttpStatus.CREATED);
+        return new ResponseEntity<>(
+                message, HttpStatus.CREATED);
     }
 
     @GetMapping("/all")
@@ -49,6 +58,7 @@ public class LeaveRequestController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getById(@PathVariable UUID id) {
+
         Optional<LeaveRequest> lr =
                 leaveRequestService.getLeaveRequestById(id);
 
@@ -67,7 +77,8 @@ public class LeaveRequestController {
             @RequestBody LeaveRequest leaveRequest) {
 
         Optional<LeaveRequest> updated =
-                leaveRequestService.updateLeaveRequest(id, leaveRequest);
+                leaveRequestService.updateLeaveRequest(
+                        id, leaveRequest);
 
         if (updated.isEmpty()) {
             return new ResponseEntity<>(
@@ -85,15 +96,18 @@ public class LeaveRequestController {
             @RequestParam LeaveRequestStatus status) {
 
         String message =
-                leaveRequestService.updateLeaveRequestStatus(id, status);
+                leaveRequestService.updateLeaveRequestStatus(
+                        id, status);
 
         if (message.equals(
                 "The leave request with that id does not exist")) {
-            return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(
+                    message, HttpStatus.NOT_FOUND);
         }
 
         if (message.startsWith("Cannot change status")) {
-            return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(
+                    message, HttpStatus.BAD_REQUEST);
         }
 
         return new ResponseEntity<>(message, HttpStatus.OK);
@@ -102,16 +116,20 @@ public class LeaveRequestController {
     // E3: Delete leave request with handover-note protection
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> delete(@PathVariable UUID id) {
-        String message = leaveRequestService.deleteLeaveRequest(id);
+
+        String message =
+                leaveRequestService.deleteLeaveRequest(id);
 
         if (message.equals(
                 "The leave request with that id does not exist")) {
-            return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(
+                    message, HttpStatus.NOT_FOUND);
         }
 
         if (message.equals(
                 "That leave request has handover notes, delete them first")) {
-            return new ResponseEntity<>(message, HttpStatus.CONFLICT);
+            return new ResponseEntity<>(
+                    message, HttpStatus.CONFLICT);
         }
 
         return new ResponseEntity<>(message, HttpStatus.OK);
@@ -145,6 +163,7 @@ public class LeaveRequestController {
     // F1: Get leave request statistics grouped by status
     @GetMapping("/stats/by-status")
     public ResponseEntity<List<Object[]>> getStats() {
+
         return new ResponseEntity<>(
                 leaveRequestService.getLeaveRequestStats(),
                 HttpStatus.OK);
@@ -163,5 +182,31 @@ public class LeaveRequestController {
                         managerId, parsedDate);
 
         return new ResponseEntity<>(message, HttpStatus.OK);
+    }
+
+    // Bonus 2 (+5): Pagination
+    @GetMapping("/page")
+    public ResponseEntity<Page<LeaveRequest>> getPage(
+            @RequestParam int page,
+            @RequestParam int size,
+            @RequestParam String sort) {
+
+        // Parse the sort parameter, for example: startDate,desc
+        String[] sortParams = sort.split(",");
+
+        Sort.Direction direction =
+                sortParams[1].equalsIgnoreCase("desc")
+                        ? Sort.Direction.DESC
+                        : Sort.Direction.ASC;
+
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by(direction, sortParams[0])
+        );
+
+        return new ResponseEntity<>(
+                leaveRequestService.getLeaveRequestsPage(pageable),
+                HttpStatus.OK);
     }
 }
