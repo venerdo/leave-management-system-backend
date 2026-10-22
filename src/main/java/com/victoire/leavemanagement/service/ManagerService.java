@@ -46,7 +46,6 @@ public class ManagerService {
         return managerRepository.findManagersByLeaveTypeName(name);
     }
 
-    // Add a leave type to a manager without removing existing types
     public String addLeaveTypeToManager(UUID managerId, UUID leaveTypeId) {
         Optional<Manager> managerOpt = managerRepository.findById(managerId);
 
@@ -73,7 +72,6 @@ public class ManagerService {
         return "Leave type added to the manager";
     }
 
-    // D4: Move a manager to a different team
     public String moveManagerToTeam(UUID managerId, int teamNumber) {
         Optional<Manager> managerOpt = managerRepository.findById(managerId);
 
@@ -90,18 +88,15 @@ public class ManagerService {
         Team newTeam = teamOpt.get();
         Manager manager = managerOpt.get();
 
-        // Allow the manager to keep their current team
         if (manager.getTeam() != null
                 && manager.getTeam().getId().equals(newTeam.getId())) {
             return "Team changed successfully";
         }
 
-        // Check whether another manager already occupies this team
         if (managerRepository.existsByTeam(newTeam)) {
             return "That team is taken by another manager";
         }
 
-        // Assign the new team; the previous team is released
         manager.setTeam(newTeam);
         managerRepository.save(manager);
 

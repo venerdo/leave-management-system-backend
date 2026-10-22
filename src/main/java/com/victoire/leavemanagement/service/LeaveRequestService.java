@@ -39,7 +39,6 @@ public class LeaveRequestService {
             return "Manager already has a leave request starting on that date";
         }
 
-        // Force status to SUBMITTED regardless of what JSON says
         leaveRequest.setStatus(LeaveRequestStatus.SUBMITTED);
 
         leaveRequestRepository.save(leaveRequest);
@@ -67,18 +66,15 @@ public class LeaveRequestService {
                 .findByStartDateBetweenOrderByStartDateAsc(start, end);
     }
 
-    // Bonus 2: Get paginated leave requests
     public Page<LeaveRequest> getLeaveRequestsPage(
             Pageable pageable) {
         return leaveRequestRepository.findAll(pageable);
     }
 
-    // F1: Get leave request counts grouped by status
     public List<Object[]> getLeaveRequestStats() {
         return leaveRequestRepository.countLeaveRequestsByStatus();
     }
 
-    // F2: Bulk cancel leave requests for an absent manager
     @Transactional
     public String cancelLeaveRequestsForManager(
             UUID managerId,
@@ -92,7 +88,6 @@ public class LeaveRequestService {
         return updatedCount + " leave requests cancelled";
     }
 
-    // D2: Update status only when the transition is valid
     public String updateLeaveRequestStatus(
             UUID id,
             LeaveRequestStatus newStatus) {
@@ -107,7 +102,6 @@ public class LeaveRequestService {
         LeaveRequest lr = existing.get();
         LeaveRequestStatus current = lr.getStatus();
 
-        // Validate status transitions
         boolean valid = false;
 
         if (current == LeaveRequestStatus.SUBMITTED
@@ -153,7 +147,6 @@ public class LeaveRequestService {
         return Optional.of(lr);
     }
 
-    // E3: Prevent deletion when handover notes exist
     public String deleteLeaveRequest(UUID id) {
         Optional<LeaveRequest> leaveRequestOpt =
                 leaveRequestRepository.findById(id);

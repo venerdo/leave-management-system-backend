@@ -28,19 +28,14 @@ public interface LeaveRequestRepository
             LocalDate startDate,
             LeaveRequestStatus status);
 
-    // Bonus 1: Dashboard Summary
-    // Count leave requests by their start date
     long countByStartDate(LocalDate startDate);
 
-    // Count leave requests by their status
     long countByStatus(LeaveRequestStatus status);
 
-    // F1: JPQL GROUP BY and COUNT
     @Query("SELECT lr.status, COUNT(lr) " +
         "FROM LeaveRequest lr GROUP BY lr.status")
     List<Object[]> countLeaveRequestsByStatus();
 
-    // F2: Bulk UPDATE with @Modifying
     @Modifying
     @Query("UPDATE LeaveRequest lr " +
         "SET lr.status = 'REJECTED' " +

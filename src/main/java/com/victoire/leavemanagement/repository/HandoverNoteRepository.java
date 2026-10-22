@@ -13,10 +13,8 @@ import java.util.UUID;
 @Repository
 public interface HandoverNoteRepository extends JpaRepository<HandoverNote, UUID> {
     
-    // E3: Derived query to check if a leave request has any notes
     boolean existsByLeaveRequest(LeaveRequest leaveRequest);
 
-    // E2: JPQL to get notes by employee staff number, newest first
     @Query("SELECT h FROM HandoverNote h WHERE h.leaveRequest.employee.staffNumber = :staffNumber ORDER BY h.writtenDate DESC")
     List<HandoverNote> findByEmployeeStaffNumber(@Param("staffNumber") String staffNumber);
 }

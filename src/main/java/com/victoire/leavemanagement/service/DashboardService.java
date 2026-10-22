@@ -13,7 +13,7 @@ public class DashboardService {
 
     private final EmployeeRepository employeeRepository;
     private final ManagerRepository managerRepository;
-    private final TeamService teamService; // Reusing C2
+    private final TeamService teamService;
     private final LeaveRequestRepository leaveRequestRepository;
     private final HandoverNoteRepository handoverNoteRepository;
 

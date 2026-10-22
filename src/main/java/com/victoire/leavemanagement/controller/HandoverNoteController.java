@@ -33,13 +33,11 @@ public class HandoverNoteController {
         return new ResponseEntity<>(message, HttpStatus.CREATED);
     }
 
-    // E2
     @GetMapping("/employee/{staffNumber}")
     public ResponseEntity<List<HandoverNote>> getByEmployee(@PathVariable String staffNumber) {
         return new ResponseEntity<>(handoverNoteService.getNotesByEmployeeStaffNumber(staffNumber), HttpStatus.OK);
     }
 
-    // E3
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> delete(@PathVariable UUID id) {
         String message = handoverNoteService.deleteHandoverNote(id);

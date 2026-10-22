@@ -57,7 +57,6 @@ public class ManagerController {
         return new ResponseEntity<>(updated.get(), HttpStatus.OK);
     }
 
-    // Add a leave type to a manager
     @PutMapping("/{managerId}/leave-types/{leaveTypeId}")
     public ResponseEntity<String> addLeaveType(
             @PathVariable UUID managerId,
@@ -77,7 +76,6 @@ public class ManagerController {
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
 
-    // Change a manager's team
     @PatchMapping("/{managerId}/team")
     public ResponseEntity<String> changeTeam(
             @PathVariable UUID managerId,

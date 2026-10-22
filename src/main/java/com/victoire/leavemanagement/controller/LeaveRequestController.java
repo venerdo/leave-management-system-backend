@@ -89,7 +89,6 @@ public class LeaveRequestController {
         return new ResponseEntity<>(updated.get(), HttpStatus.OK);
     }
 
-    // D2: Update leave request status with transition validation
     @PatchMapping("/{id}/status")
     public ResponseEntity<String> updateStatus(
             @PathVariable UUID id,
@@ -113,7 +112,6 @@ public class LeaveRequestController {
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
 
-    // E3: Delete leave request with handover-note protection
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> delete(@PathVariable UUID id) {
 
@@ -135,7 +133,6 @@ public class LeaveRequestController {
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
 
-    // B2: Get leave requests by status
     @GetMapping("/by-status")
     public ResponseEntity<List<LeaveRequest>> getByStatus(
             @RequestParam LeaveRequestStatus status) {
@@ -145,7 +142,6 @@ public class LeaveRequestController {
                 HttpStatus.OK);
     }
 
-    // B3: Get leave requests between dates
     @GetMapping("/between")
     public ResponseEntity<List<LeaveRequest>> getBetween(
             @RequestParam String start,
@@ -160,7 +156,6 @@ public class LeaveRequestController {
                 HttpStatus.OK);
     }
 
-    // F1: Get leave request statistics grouped by status
     @GetMapping("/stats/by-status")
     public ResponseEntity<List<Object[]>> getStats() {
 
@@ -169,7 +164,6 @@ public class LeaveRequestController {
                 HttpStatus.OK);
     }
 
-    // F2: Bulk cancel leave requests for an absent manager
     @PatchMapping("/cancel-day")
     public ResponseEntity<String> cancelDay(
             @RequestParam UUID managerId,
@@ -184,14 +178,12 @@ public class LeaveRequestController {
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
 
-    // Bonus 2 (+5): Pagination
     @GetMapping("/page")
     public ResponseEntity<Page<LeaveRequest>> getPage(
             @RequestParam int page,
             @RequestParam int size,
             @RequestParam String sort) {
 
-        // Parse the sort parameter, for example: startDate,desc
         String[] sortParams = sort.split(",");
 
         Sort.Direction direction =
