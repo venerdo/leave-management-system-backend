@@ -6,6 +6,7 @@ import com.victoire.leavemanagement.model.LeaveRequestStatus;
 import com.victoire.leavemanagement.repository.HandoverNoteRepository;
 import com.victoire.leavemanagement.repository.LeaveRequestRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -51,18 +52,39 @@ public class LeaveRequestService {
         return leaveRequestRepository.findById(id);
     }
 
-    public List<LeaveRequest> getLeaveRequestsByStatus(LeaveRequestStatus status) {
+    public List<LeaveRequest> getLeaveRequestsByStatus(
+            LeaveRequestStatus status) {
         return leaveRequestRepository.findByStatusOrderByStartDateAsc(status);
     }
 
     public List<LeaveRequest> getLeaveRequestsBetweenDates(
             java.time.LocalDate start, java.time.LocalDate end) {
-        return leaveRequestRepository.findByStartDateBetweenOrderByStartDateAsc(start, end);
+        return leaveRequestRepository
+                .findByStartDateBetweenOrderByStartDateAsc(start, end);
+    }
+
+    // F1: Get leave request counts grouped by status
+    public List<Object[]> getLeaveRequestStats() {
+        return leaveRequestRepository.countLeaveRequestsByStatus();
+    }
+
+    // F2: Bulk cancel leave requests for an absent manager
+    @Transactional
+    public String cancelLeaveRequestsForManager(
+            UUID managerId, java.time.LocalDate date) {
+
+        int updatedCount =
+                leaveRequestRepository.cancelLeaveRequestsForManagerOnDate(
+                        managerId, date);
+
+        return updatedCount + " leave requests cancelled";
     }
 
     // D2: Update status only when the transition is valid
-    public String updateLeaveRequestStatus(UUID id, LeaveRequestStatus newStatus) {
-        Optional<LeaveRequest> existing = leaveRequestRepository.findById(id);
+    public String updateLeaveRequestStatus(
+            UUID id, LeaveRequestStatus newStatus) {
+        Optional<LeaveRequest> existing =
+                leaveRequestRepository.findById(id);
 
         if (existing.isEmpty()) {
             return "The leave request with that id does not exist";
@@ -96,7 +118,8 @@ public class LeaveRequestService {
 
     public Optional<LeaveRequest> updateLeaveRequest(
             UUID id, LeaveRequest leaveRequest) {
-        Optional<LeaveRequest> existing = leaveRequestRepository.findById(id);
+        Optional<LeaveRequest> existing =
+                leaveRequestRepository.findById(id);
 
         if (existing.isEmpty()) {
             return Optional.empty();
@@ -105,7 +128,7 @@ public class LeaveRequestService {
         LeaveRequest lr = existing.get();
         lr.setStartDate(leaveRequest.getStartDate());
 
-        // Do not update status through the general PUT endpoint
+
         lr.setDays(leaveRequest.getDays());
         lr.setReason(leaveRequest.getReason());
         lr.setEmployee(leaveRequest.getEmployee());
@@ -124,7 +147,8 @@ public class LeaveRequestService {
             return "The leave request with that id does not exist";
         }
 
-        if (handoverNoteRepository.existsByLeaveRequest(leaveRequestOpt.get())) {
+        if (handoverNoteRepository.existsByLeaveRequest(
+                leaveRequestOpt.get())) {
             return "That leave request has handover notes, delete them first";
         }
 

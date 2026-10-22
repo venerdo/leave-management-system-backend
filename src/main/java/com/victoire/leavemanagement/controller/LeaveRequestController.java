@@ -24,14 +24,16 @@ public class LeaveRequestController {
     }
 
     @PostMapping("/save")
-    public ResponseEntity<String> save(@RequestBody LeaveRequest leaveRequest) {
+    public ResponseEntity<String> save(
+            @RequestBody LeaveRequest leaveRequest) {
         String message = leaveRequestService.saveLeaveRequest(leaveRequest);
 
         if (message.equals("Leave request date cannot be in the past")) {
             return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
         }
 
-        if (message.equals("Manager already has a leave request starting on that date")) {
+        if (message.equals(
+                "Manager already has a leave request starting on that date")) {
             return new ResponseEntity<>(message, HttpStatus.CONFLICT);
         }
 
@@ -85,7 +87,8 @@ public class LeaveRequestController {
         String message =
                 leaveRequestService.updateLeaveRequestStatus(id, status);
 
-        if (message.equals("The leave request with that id does not exist")) {
+        if (message.equals(
+                "The leave request with that id does not exist")) {
             return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
         }
 
@@ -101,7 +104,8 @@ public class LeaveRequestController {
     public ResponseEntity<String> delete(@PathVariable UUID id) {
         String message = leaveRequestService.deleteLeaveRequest(id);
 
-        if (message.equals("The leave request with that id does not exist")) {
+        if (message.equals(
+                "The leave request with that id does not exist")) {
             return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
         }
 
@@ -136,5 +140,28 @@ public class LeaveRequestController {
                 leaveRequestService.getLeaveRequestsBetweenDates(
                         startDate, endDate),
                 HttpStatus.OK);
+    }
+
+    // F1: Get leave request statistics grouped by status
+    @GetMapping("/stats/by-status")
+    public ResponseEntity<List<Object[]>> getStats() {
+        return new ResponseEntity<>(
+                leaveRequestService.getLeaveRequestStats(),
+                HttpStatus.OK);
+    }
+
+    // F2: Bulk cancel leave requests for an absent manager
+    @PatchMapping("/cancel-day")
+    public ResponseEntity<String> cancelDay(
+            @RequestParam UUID managerId,
+            @RequestParam String date) {
+
+        LocalDate parsedDate = LocalDate.parse(date);
+
+        String message =
+                leaveRequestService.cancelLeaveRequestsForManager(
+                        managerId, parsedDate);
+
+        return new ResponseEntity<>(message, HttpStatus.OK);
     }
 }
